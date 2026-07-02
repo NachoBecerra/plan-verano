@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan de verano — Control de peso</title>
+<style>
+  :root{
+    --surface-1:#fcfcfb; --page:#f9f9f7;
+    --text-1:#0b0b0b; --text-2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+    --series-peso:#2a78d6; --series-cintura:#1baf7a;
+    --good:#006300; --bad:#d03b3b;
+    --heat-1:#86b6ef; --heat-2:#5598e7; --heat-3:#2a78d6; --heat-4:#1c5cab; --heat-5:#104281;
+    --accent:#2a78d6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --surface-1:#1a1a19; --page:#0d0d0d;
+      --text-1:#ffffff; --text-2:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+      --series-peso:#3987e5; --series-cintura:#199e70;
+      --good:#0ca30c; --bad:#e66767;
+      --heat-1:#184f95; --heat-2:#1c5cab; --heat-3:#256abf; --heat-4:#3987e5; --heat-5:#6da7ec;
+      --accent:#3987e5;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--text-1);
+       font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;}
+  .wrap{max-width:860px;margin:0 auto;padding:16px 16px 64px;}
+  header h1{font-size:22px;margin:8px 0 2px;}
+  header p{margin:0 0 12px;color:var(--text-2);font-size:14px;}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+
+  nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--grid);margin-bottom:16px;}
+  nav.tabs button{appearance:none;border:none;background:none;color:var(--text-2);
+    font:600 15px/1 inherit;padding:10px 14px;cursor:pointer;border-bottom:2px solid transparent;}
+  nav.tabs button[aria-selected="true"]{color:var(--text-1);border-bottom-color:var(--accent);}
+
+  .card{background:var(--surface-1);border:1px solid var(--border);border-radius:10px;
+        padding:16px;margin-bottom:16px;}
+  .card h2{font-size:16px;margin:0 0 10px;}
+  .card h3{font-size:14px;margin:14px 0 6px;color:var(--text-2);}
+
+  /* Día */
+  .daynav{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .daynav .title{font-size:17px;font-weight:700;flex:1;min-width:180px;}
+  .btn{appearance:none;border:1px solid var(--border);background:var(--surface-1);
+       color:var(--text-1);border-radius:8px;padding:7px 12px;font:600 14px/1 inherit;cursor:pointer;}
+  .btn:hover{border-color:var(--axis);}
+  .btn.small{padding:5px 9px;font-size:13px;}
+  input[type="date"],input[type="number"]{border:1px solid var(--border);background:var(--surface-1);
+       color:var(--text-1);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px;}
+  .banner{border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface-1));
+          padding:8px 12px;border-radius:6px;font-size:14px;margin-bottom:12px;}
+  .meals{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:14px;}
+  .meals dt{color:var(--muted);font-weight:600;}
+  .meals dd{margin:0;}
+  ul.compact{margin:4px 0;padding-left:20px;font-size:14px;}
+  .checklist{display:grid;gap:6px;margin-top:4px;}
+  .checklist label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--border);
+        border-radius:8px;cursor:pointer;font-size:14px;}
+  .checklist label:hover{border-color:var(--axis);}
+  .checklist input{margin-top:2px;accent-color:var(--accent);width:16px;height:16px;}
+  .checklist label.done{background:color-mix(in srgb,var(--accent) 7%,var(--surface-1));}
+  textarea{width:100%;min-height:64px;border:1px solid var(--border);border-radius:8px;
+        background:var(--surface-1);color:var(--text-1);font:inherit;font-size:14px;padding:8px 10px;resize:vertical;}
+  .daymeter{font-size:13px;color:var(--text-2);margin-top:8px;}
+  .meterbar{height:8px;border-radius:4px;background:color-mix(in srgb,var(--accent) 15%,var(--surface-1));
+        overflow:hidden;margin-top:4px;}
+  .meterbar>div{height:100%;background:var(--accent);border-radius:4px;}
+
+  /* Stat tiles */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px;}
+  .tile{background:var(--surface-1);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+  .tile .label{font-size:13px;color:var(--text-2);}
+  .tile .value{font-size:26px;font-weight:600;margin-top:2px;}
+  .tile .delta{font-size:13px;font-weight:600;margin-top:2px;}
+  .tile .delta.good{color:var(--good);} .tile .delta.bad{color:var(--bad);}
+  .tile .sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
+  /* Charts */
+  .chartwrap{position:relative;}
+  .chartwrap svg{display:block;width:100%;height:auto;}
+  .tooltip{position:absolute;pointer-events:none;background:var(--surface-1);border:1px solid var(--border);
+        border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.12);padding:6px 10px;font-size:13px;
+        display:none;white-space:nowrap;z-index:5;}
+  .tooltip .tt-date{color:var(--text-2);font-size:12px;}
+  .tooltip .tt-val{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;}
+  .tooltip .key{display:inline-block;width:14px;height:0;border-top:3px solid;border-radius:2px;}
+  .empty{color:var(--muted);font-size:14px;padding:8px 0;}
+
+  /* Tables */
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{text-align:left;color:var(--text-2);font-weight:600;border-bottom:1px solid var(--grid);padding:6px 8px;}
+  td{border-bottom:1px solid var(--grid);padding:6px 8px;font-variant-numeric:tabular-nums;}
+  td .btn{padding:2px 8px;font-size:12px;}
+  .addrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 4px;}
+
+  /* Heatmap */
+  .heat{display:grid;grid-template-columns:repeat(7,28px);gap:3px;}
+  .heat .cell{width:28px;height:28px;border-radius:5px;border:1px solid var(--grid);
+        cursor:pointer;font-size:0;}
+  .heat .cell.off{visibility:hidden;cursor:default;}
+  .heat .cell.future{border-style:dashed;cursor:default;}
+  .heat .cell.today{outline:2px solid var(--accent);outline-offset:1px;}
+  .heathead{display:grid;grid-template-columns:repeat(7,28px);gap:3px;font-size:11px;
+        color:var(--muted);text-align:center;margin-bottom:4px;}
+  .heatlegend{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);margin-top:8px;}
+  .heatlegend i{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid var(--grid);}
+
+  details{margin:8px 0;} summary{cursor:pointer;font-weight:600;}
+  .warn{border-left:3px solid #ec835a;background:color-mix(in srgb,#ec835a 8%,var(--surface-1));
+        padding:8px 12px;border-radius:6px;font-size:14px;}
+  footer{color:var(--muted);font-size:12px;margin-top:24px;}
+  @media (max-width:560px){ .meals{grid-template-columns:1fr;} .meals dt{margin-top:4px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Plan de verano — llegar fuerte a la pretemporada</h1>
+    <p>Seguimiento diario de comidas, actividad y medidas · 6 jul → 31 ago 2026</p>
+    <div class="toolbar">
+      <button class="btn small" id="btnExport">Exportar datos</button>
+      <button class="btn small" id="btnImport">Importar datos</button>
+      <input type="file" id="fileImport" accept="application/json" hidden>
+      <span id="syncStatus" style="font-size:13px;color:var(--muted);align-self:center"></span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="hoy">Hoy</button>
+    <button role="tab" aria-selected="false" data-tab="registro">Registro</button>
+    <button role="tab" aria-selected="false" data-tab="guia">Guía</button>
+  </nav>
+
+  <!-- ============ TAB HOY ============ -->
+  <section id="tab-hoy">
+    <div class="daynav">
+      <button class="btn small" id="prevDay" aria-label="Día anterior">◀</button>
+      <span class="title" id="dayTitle"></span>
+      <input type="date" id="dayPicker" min="2026-07-06" max="2026-08-31">
+      <button class="btn small" id="goToday">Hoy</button>
+      <button class="btn small" id="nextDay" aria-label="Día siguiente">▶</button>
+    </div>
+    <div id="dayBanner"></div>
+
+    <div class="card">
+      <h2>🍽️ Menú del día</h2>
+      <dl class="meals" id="dayMeals"></dl>
+    </div>
+
+    <div class="card">
+      <h2>🏃 Actividad del día</h2>
+      <div id="dayExercise"></div>
+    </div>
+
+    <div class="card">
+      <h2>✅ Hábitos del día</h2>
+      <div class="checklist" id="dayChecks"></div>
+      <div class="daymeter">
+        <span id="dayMeterLabel"></span>
+        <div class="meterbar"><div id="dayMeterFill" style="width:0%"></div></div>
+      </div>
+      <h3>Notas (comidas fuera, incidencias, cómo se ha sentido…)</h3>
+      <textarea id="dayNotes" placeholder="Escribe aquí…"></textarea>
+    </div>
+  </section>
+
+  <!-- ============ TAB REGISTRO ============ -->
+  <section id="tab-registro" hidden>
+    <div class="tiles" id="tiles"></div>
+
+    <div class="card">
+      <h2>Peso (kg) — semanal, en ayunas</h2>
+      <div class="addrow">
+        <input type="date" id="wDate" min="2026-06-25" max="2026-09-15">
+        <input type="number" id="wVal" step="0.1" min="30" max="90" placeholder="kg" style="width:90px">
+        <button class="btn" id="wAdd">Añadir peso</button>
+      </div>
+      <div class="chartwrap" id="chartPeso"></div>
+    </div>
+
+    <div class="card">
+      <h2>Cintura (cm) — cada 2 semanas, a la altura del ombligo</h2>
+      <div class="addrow">
+        <input type="date" id="cDate" min="2026-06-25" max="2026-09-15">
+        <input type="number" id="cVal" step="0.5" min="40" max="120" placeholder="cm" style="width:90px">
+        <button class="btn" id="cAdd">Añadir cintura</button>
+      </div>
+      <div class="chartwrap" id="chartCintura"></div>
+    </div>
+
+    <div class="card">
+      <h2>Cumplimiento de hábitos</h2>
+      <p style="font-size:13px;color:var(--text-2);margin:0 0 10px">
+        Cada casilla es un día (columnas L–D). Más oscuro = más hábitos cumplidos. Pulsa una casilla para abrir ese día.</p>
+      <div class="heathead"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+      <div class="heat" id="heat"></div>
+      <div class="heatlegend">0
+        <i style="background:var(--surface-1)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i><i style="background:var(--heat-5)"></i>
+        7 hábitos</div>
+    </div>
+
+    <div class="card">
+      <h2>Tabla de registros</h2>
+      <div id="recordsTable"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB GUÍA ============ -->
+  <section id="tab-guia" hidden>
+    <div class="card">
+      <h2>🎯 Objetivo del verano</h2>
+      <p>Llegar al 31 de agosto <strong>sin subir de 54 kg</strong> (mínimo) y, si sale de forma natural,
+         en <strong>52–53 kg</strong> con menos cintura, más agilidad y buena energía.
+         No se persigue perder 5–7 kg: eso solo con pediatra.</p>
+      <p style="font-size:14px;color:var(--text-2)">El mensaje para él nunca es «adelgazar» ni «barriga»:
+         es <em>«mantenerse activo para llegar fuerte y ágil a la pretemporada»</em>.</p>
+    </div>
+
+    <div class="card">
+      <h2>📏 Punto de partida (02/07/2026)</h2>
+      <ul class="compact">
+        <li>Varón, 11 años (cumple 12 en agosto) · 1,47 m · 54 kg · IMC 25,0.</li>
+        <li>Referencia CDC a su edad: sobrepeso desde IMC 20,95 (P85), obesidad desde IMC 24,15 (P95).</li>
+        <li>Está justo por encima del P95 → conviene actuar, pero de forma moderada, y <strong>confirmar con el pediatra</strong>.</li>
+        <li>La medida principal de progreso es la <strong>cintura</strong>, no solo el peso (es musculado).</li>
+        <li>Si crece 1–2 cm y mantiene peso, el IMC baja solo (52 kg y 1,49 m → IMC 23,4).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>📜 Las 5 normas de la casa</h2>
+      <ul class="compact">
+        <li><strong>Agua</strong> como bebida normal. Refrescos y zumos: casi cero.</li>
+        <li>Nada de <strong>bollería, galletas, cereales azucarados ni snacks</strong> como rutina (no comprarlos).</li>
+        <li><strong>Una hora diaria de movimiento</strong> como mínimo. Ningún día 100 % sedentario. Primero actividad, luego pantalla.</li>
+        <li><strong>Cena limpia 5–6 días/semana</strong>: verdura + proteína + hidrato pequeño, sin pantalla.</li>
+        <li><strong>Peso 1 vez/semana</strong> (lunes, en ayunas) y <strong>cintura cada 2 semanas</strong>. Nunca báscula diaria.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>🍽️ El plato (comida y cena, sin pesar nada)</h2>
+      <ul class="compact">
+        <li><strong>½ plato</strong>: verdura, ensalada, crema o gazpacho.</li>
+        <li><strong>¼ plato</strong>: proteína — pollo, pavo, huevos, pescado, atún, legumbre, carne magra.</li>
+        <li><strong>¼ plato</strong>: hidrato — arroz, pasta, patata, pan, cuscús, boniato.</li>
+        <li>Los hidratos <strong>no se eliminan</strong>: está creciendo y en septiembre vuelve a entrenar.</li>
+      </ul>
+      <h3>Permitidos con medida</h3>
+      <ul class="compact">
+        <li>Helado: 2–3 por semana como máximo.</li>
+        <li>Pizza / comida rápida / fritos: 1 vez por semana como máximo.</li>
+        <li>Chucherías: momentos puntuales, nunca a libre acceso en casa.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>💪 Semana tipo de actividad (OMS: ≥60 min/día + fuerza 3 días)</h2>
+      <ul class="compact">
+        <li><strong>Lunes, miércoles y viernes:</strong> 45–60 min aeróbico (paseo rápido, bici) + rutina de fuerza 15–20 min.</li>
+        <li><strong>Martes y jueves:</strong> 60 min de piscina (nadar de verdad), bici o balón.</li>
+        <li><strong>Sábado:</strong> actividad larga en familia — piscina, playa, senderismo, bici.</li>
+        <li><strong>Domingo:</strong> paseo familiar 45 min + movilidad suave. Comida familiar flexible.</li>
+      </ul>
+      <h3>Rutina de fuerza (L·X·V)</h3>
+      <p style="font-size:14px">3×10 sentadillas · 3×8 zancadas por pierna · 3×20–30 s plancha ·
+         3×8 flexiones inclinadas · 10 saltos suaves · 5–10 min movilidad.
+         Con buena técnica y sin llegar al fallo. Nada de «castigos» con ejercicio ni cientos de abdominales.</p>
+    </div>
+
+    <div class="card">
+      <h2>🗓️ Menú rotativo de 14 días</h2>
+      <details><summary>Ver los 14 menús (útil para la compra semanal)</summary>
+        <div id="menuTable" style="margin-top:10px"></div>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>🚨 Señales de alarma — parar y consultar al pediatra</h2>
+      <div class="warn">
+        Hambre fuerte o irritabilidad continua · obsesión con la báscula o la comida ·
+        esconder comida o atracones · pérdida de energía, fuerza o ánimo.
+        Si aparece cualquiera, el plan se relaja y se consulta.
+      </div>
+      <p style="font-size:13px;color:var(--text-2);margin-top:10px">
+        Datos completos y fuentes (CDC, OMS, AEP): ver <strong>datos-estudio.md</strong> en esta misma carpeta.
+        Si en 2 semanas sube más de 0,5–1 kg, revisad comida y actividad.</p>
+    </div>
+  </section>
+
+  <footer>Con la nube configurada, los datos se comparten entre todos los dispositivos de la familia
+  (además queda copia en cada navegador). Usa «Exportar datos» de vez en cuando como copia de seguridad.</footer>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script>
+"use strict";
+/* ====== Configuración de la nube (ver instrucciones-nube.md) ======
+   Pega aquí el firebaseConfig de tu proyecto. Mientras sea null, la app
+   funciona solo en este dispositivo (localStorage), como hasta ahora.
+   Ejemplo:
+   const FIREBASE_CONFIG = {
+     apiKey: "AIza…", authDomain: "plan-verano-XXXX.firebaseapp.com",
+     databaseURL: "https://plan-verano-XXXX-default-rtdb.europe-west1.firebasedatabase.app",
+     projectId: "plan-verano-XXXX", storageBucket: "plan-verano-XXXX.appspot.com",
+     messagingSenderId: "…", appId: "…"
+   };
+*/
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCtnAmB-QQruni0EWzpr9x8OOB0kW7uCkY",
+  authDomain: "peso-b6350.firebaseapp.com",
+  databaseURL: "https://peso-b6350-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "peso-b6350",
+  storageBucket: "peso-b6350.firebasestorage.app",
+  messagingSenderId: "562503808288",
+  appId: "1:562503808288:web:8e77a16efbae2b6d371345"
+};
+// Clave secreta de la familia: es la "contraseña" de vuestros datos, no la compartáis fuera de casa.
+const FAMILY_KEY = "o7xje3ovnt43pvvfjmi0kiysbpn6sk2ypwx189wk";
+
+/* ================= Datos del plan ================= */
+const START = "2026-07-06", END = "2026-08-31";
+const ALTURA_M = 1.47;
+const HABITS = [
+  {id:"agua",    label:"💧 Solo agua como bebida (sin refrescos ni zumos)"},
+  {id:"snacks",  label:"🚫 Sin bollería, galletas ni snacks"},
+  {id:"fruta",   label:"🍎 2–3 piezas de fruta"},
+  {id:"act",     label:"🏃 Al menos 60 minutos de actividad física"},
+  {id:"ejer",    label:"💪 Ejercicio del día completado"},
+  {id:"cena",    label:"🥗 Cena limpia (verdura + proteína + hidrato pequeño)"},
+  {id:"pantalla",label:"📱 Pantallas controladas (primero actividad, luego pantalla)"}
+];
+const MENUS = [
+ {d:"Leche + tostada integral con aceite y tomate", mm:"Fruta (sandía, melocotón…)", c:"Pollo a la plancha + arroz + ensalada", me:"Yogur natural + plátano", ce:"Tortilla francesa + ensalada + yogur natural"},
+ {d:"Yogur natural + avena + fruta", mm:"Bocadillo pequeño de pavo", c:"Lentejas con verduras + fruta", me:"Fruta + puñado pequeño de frutos secos", ce:"Pescado al horno + verduras + patata cocida pequeña"},
+ {d:"Leche + pan integral con queso fresco", mm:"Fruta", c:"Pasta con atún y tomate natural + ensalada", me:"Yogur natural + fruta", ce:"Pollo a la plancha + crema de verduras"},
+ {d:"Tortilla francesa + fruta", mm:"Fruta", c:"Pescado + puré de patata + verduras", me:"Bocadillo pequeño de atún", ce:"Huevos revueltos + tomate + pan integral pequeño"},
+ {d:"Yogur natural + fruta + tostada integral", mm:"Fruta", c:"Garbanzos salteados con verduras", me:"Yogur natural + avena", ce:"Ensalada completa de atún y huevo + pan pequeño"},
+ {d:"Leche + tostada con aceite, tomate y jamón", mm:"Fruta", c:"Hamburguesa casera + pan + ensalada (sin patatas fritas)", me:"Fruta + queso fresco", ce:"Sopa o crema de verduras + filete de pollo"},
+ {d:"Yogur natural + fruta", mm:"Fruta", c:"Comida familiar libre (ración normal, con agua)", me:"Yogur natural", ce:"Gazpacho + tortilla francesa + fruta"},
+ {d:"Leche + pan integral con jamón", mm:"Fruta", c:"Arroz con pollo y verduras + ensalada", me:"Yogur natural + plátano", ce:"Pescado a la plancha + ensalada + patata pequeña"},
+ {d:"Kéfir o yogur + avena + plátano", mm:"Bocadillo pequeño de tortilla", c:"Cuscús con verduras y pollo", me:"Fruta", ce:"Revuelto de huevos con champiñones + tomate"},
+ {d:"Leche + tostada integral con queso fresco", mm:"Fruta", c:"Judías verdes con patata + pechuga de pavo", me:"Yogur natural + fruta", ce:"Ensalada de pasta (ración moderada) con atún + fruta"},
+ {d:"Tortilla francesa + fruta", mm:"Fruta", c:"Alubias o lentejas con verduras", me:"Bocadillo pequeño de pavo", ce:"Merluza al horno + verduras + boniato pequeño"},
+ {d:"Yogur natural + fruta + tostada", mm:"Fruta", c:"Pasta integral con tomate y carne magra + ensalada", me:"Fruta + frutos secos (puñado pequeño)", ce:"Gazpacho + pollo a la plancha + pan pequeño"},
+ {d:"Leche + tostada con aceite y tomate", mm:"Fruta", c:"Pescado con arroz + ensalada", me:"Yogur natural + avena", ce:"Crema de verduras + tortilla francesa"},
+ {d:"Yogur natural + fruta", mm:"Fruta", c:"Comida familiar libre o pizza (máx. 1 vez/semana)", me:"Yogur natural", ce:"Ensalada completa de pollo + fruta"}
+];
+const FUERZA = "Rutina de fuerza (15–20 min): 3×10 sentadillas · 3×8 zancadas por pierna · 3×20–30 s plancha · 3×8 flexiones inclinadas · 10 saltos suaves · movilidad.";
+const EXERCISE = { // por día de la semana (0=domingo)
+  1:{t:"Aeróbico + fuerza", d:["Día de medición: peso en ayunas por la mañana (y cintura si toca).","45–60 min de paseo rápido o bici (mejor a primera hora, antes del calor).", FUERZA]},
+  2:{t:"Día de piscina / balón", d:["60 min de piscina (nadar de verdad, no solo flotar), bici o balón."]},
+  3:{t:"Aeróbico + fuerza", d:["45–60 min de paseo rápido o bici.", FUERZA]},
+  4:{t:"Día de piscina / balón", d:["60 min de piscina, bici, balón o paseo."]},
+  5:{t:"Aeróbico + fuerza", d:["45–60 min de paseo rápido o bici.", FUERZA]},
+  6:{t:"Día activo en familia", d:["Actividad larga: piscina, playa, senderismo o bici en familia. Llevar agua, fruta y bocadillo pequeño."]},
+  0:{t:"Día suave", d:["Paseo familiar de 45 min + movilidad suave.", "Comida familiar flexible (ración normal, con agua)."]}
+};
+
+/* ================= Utilidades de fecha ================= */
+const p2 = n => String(n).padStart(2,"0");
+const fmt = d => d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());
+const parse = s => { const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
+const addDays = (s,n) => { const d=parse(s); d.setDate(d.getDate()+n); return fmt(d); };
+const diffDays = (a,b) => Math.round((parse(b)-parse(a))/86400000);
+const clampDay = s => s < START ? START : (s > END ? END : s);
+const longDate = s => parse(s).toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
+const shortDate = s => parse(s).toLocaleDateString("es-ES",{day:"numeric",month:"short"});
+const fmtNum = (v,dec=1) => v.toLocaleString("es-ES",{minimumFractionDigits:dec,maximumFractionDigits:dec});
+
+/* ================= Estado ================= */
+const LS_KEY = "control-peso-fran-v1";
+function normalize(s){
+  // Acepta el formato antiguo (arrays [{date,v}]) y el nuevo (mapas {fecha: valor})
+  const toMap = x => {
+    if (Array.isArray(x)){ const m={}; x.forEach(e=>{ if(e && e.date) m[e.date]=e.v; }); return m; }
+    return (x && typeof x==="object") ? x : {};
+  };
+  s = (s && typeof s==="object") ? s : {};
+  s.checks  = (s.checks && typeof s.checks==="object") ? s.checks : {};
+  s.notes   = (s.notes  && typeof s.notes ==="object") ? s.notes  : {};
+  s.weights = toMap(s.weights);
+  s.waists  = toMap(s.waists);
+  // Migración: el arranque del plan se movió del 2 al 6 de julio (campus de fútbol los días previos)
+  if (s.weights["2026-07-02"]===54){ delete s.weights["2026-07-02"]; s.weights[START]=54; }
+  if (!Object.keys(s.weights).length) s.weights[START]=54;
+  return s;
+}
+let state = null;
+try { state = JSON.parse(localStorage.getItem(LS_KEY)); } catch(e){ /* estado nuevo */ }
+state = normalize(state);
+const save = () => localStorage.setItem(LS_KEY, JSON.stringify(state));
+const entriesOf = m => Object.keys(m).sort().map(date => ({date, v:m[date]}));
+
+let currentDay = clampDay(fmt(new Date()));
+
+/* ================= Pestañas ================= */
+const tabs = document.querySelectorAll("nav.tabs button");
+tabs.forEach(b => b.addEventListener("click", () => {
+  tabs.forEach(x => x.setAttribute("aria-selected", x===b ? "true":"false"));
+  document.getElementById("tab-hoy").hidden = b.dataset.tab!=="hoy";
+  document.getElementById("tab-registro").hidden = b.dataset.tab!=="registro";
+  document.getElementById("tab-guia").hidden = b.dataset.tab!=="guia";
+  if (b.dataset.tab==="registro") renderRegistro();
+}));
+function openTab(name){ tabs.forEach(b => { if (b.dataset.tab===name) b.click(); }); }
+
+/* ================= Vista Hoy ================= */
+function renderDay(){
+  const idx = diffDays(START, currentDay);
+  const ld = longDate(currentDay);
+  document.getElementById("dayTitle").textContent =
+      ld.charAt(0).toUpperCase() + ld.slice(1) + " · día " + (idx+1) + " de " + (diffDays(START,END)+1);
+  document.getElementById("dayPicker").value = currentDay;
+
+  // Aviso de medición
+  const banner = document.getElementById("dayBanner");
+  banner.innerHTML = "";
+  if (idx % 7 === 0){
+    const div = document.createElement("div");
+    div.className = "banner";
+    div.textContent = idx % 14 === 0
+      ? "⚖️ Hoy toca pesarse (en ayunas) y medir la cintura en el ombligo. Apúntalo en la pestaña Registro."
+      : "⚖️ Hoy toca pesarse (en ayunas, tras ir al baño). Apúntalo en la pestaña Registro.";
+    banner.appendChild(div);
+  }
+
+  // Menú
+  const menu = MENUS[idx % MENUS.length];
+  const dl = document.getElementById("dayMeals");
+  dl.innerHTML = "";
+  [["Desayuno",menu.d],["Media mañana",menu.mm],["Comida",menu.c],["Merienda",menu.me],["Cena",menu.ce]]
+    .forEach(([k,v]) => {
+      const dt=document.createElement("dt"); dt.textContent=k;
+      const dd=document.createElement("dd"); dd.textContent=v;
+      dl.append(dt,dd);
+    });
+
+  // Ejercicio
+  const ex = EXERCISE[parse(currentDay).getDay()];
+  const exBox = document.getElementById("dayExercise");
+  exBox.innerHTML = "";
+  const h=document.createElement("p"); h.innerHTML="<strong></strong>";
+  h.firstChild.textContent = ex.t; exBox.appendChild(h);
+  const ul=document.createElement("ul"); ul.className="compact";
+  ex.d.forEach(t => { const li=document.createElement("li"); li.textContent=t; ul.appendChild(li); });
+  exBox.appendChild(ul);
+
+  // Checklist
+  const done = new Set(state.checks[currentDay] || []);
+  const box = document.getElementById("dayChecks");
+  box.innerHTML = "";
+  HABITS.forEach(hb => {
+    const label=document.createElement("label");
+    if (done.has(hb.id)) label.classList.add("done");
+    const cb=document.createElement("input");
+    cb.type="checkbox"; cb.checked=done.has(hb.id);
+    cb.addEventListener("change", () => {
+      const set=new Set(state.checks[currentDay]||[]);
+      cb.checked ? set.add(hb.id) : set.delete(hb.id);
+      if (set.size) state.checks[currentDay]=[...set]; else delete state.checks[currentDay];
+      save(); pushPart("checks/"+currentDay, set.size ? [...set] : null);
+      renderDay();
+    });
+    const span=document.createElement("span"); span.textContent=hb.label;
+    label.append(cb,span); box.appendChild(label);
+  });
+  document.getElementById("dayMeterLabel").textContent =
+      done.size + " de " + HABITS.length + " hábitos cumplidos";
+  document.getElementById("dayMeterFill").style.width = (done.size/HABITS.length*100)+"%";
+
+  // Notas (no pisar el texto si se está escribiendo en este dispositivo)
+  const notes = document.getElementById("dayNotes");
+  if (document.activeElement !== notes) notes.value = state.notes[currentDay] || "";
+}
+let notesTimer=null;
+document.getElementById("dayNotes").addEventListener("input", e => {
+  const v = e.target.value, d = currentDay;
+  if (v) state.notes[d]=v; else delete state.notes[d];
+  save();
+  clearTimeout(notesTimer);
+  notesTimer=setTimeout(()=>pushPart("notes/"+d, v||null), 600);
+});
+document.getElementById("prevDay").addEventListener("click", () => { currentDay=clampDay(addDays(currentDay,-1)); renderDay(); });
+document.getElementById("nextDay").addEventListener("click", () => { currentDay=clampDay(addDays(currentDay, 1)); renderDay(); });
+document.getElementById("goToday").addEventListener("click", () => { currentDay=clampDay(fmt(new Date())); renderDay(); });
+document.getElementById("dayPicker").addEventListener("change", e => {
+  if (e.target.value){ currentDay=clampDay(e.target.value); renderDay(); }
+});
+
+/* ================= Gráficas (SVG) ================= */
+function lineChart(container, entries, opts){
+  container.innerHTML = "";
+  if (!entries.length){
+    const p=document.createElement("p"); p.className="empty";
+    p.textContent = opts.emptyMsg; container.appendChild(p); return;
+  }
+  const data=[...entries].sort((a,b)=>a.date<b.date?-1:1);
+  const W=680,H=250,ML=46,MR=64,MT=14,MB=30;
+  const iw=W-ML-MR, ih=H-MT-MB;
+  const x0=Math.min(parse(START).getTime(), parse(data[0].date).getTime());
+  const x1=Math.max(parse(END).getTime(), parse(data[data.length-1].date).getTime());
+  let vmin=Math.min(...data.map(e=>e.v)), vmax=Math.max(...data.map(e=>e.v));
+  if (opts.band){ vmin=Math.min(vmin,opts.band[0]); vmax=Math.max(vmax,opts.band[1]); }
+  const pad=Math.max((vmax-vmin)*0.25, opts.minPad);
+  vmin=Math.floor(vmin-pad); vmax=Math.ceil(vmax+pad);
+  const X=s=>ML+(parse(s).getTime()-x0)/(x1-x0)*iw;
+  const Y=v=>MT+ih-(v-vmin)/(vmax-vmin)*ih;
+
+  const NS="http://www.w3.org/2000/svg";
+  const svg=document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  svg.setAttribute("role","img");
+  svg.setAttribute("aria-label",opts.aria);
+  const el=(n,attrs)=>{const e=document.createElementNS(NS,n);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;};
+
+  // Banda objetivo
+  if (opts.band){
+    svg.appendChild(el("rect",{x:ML,y:Y(opts.band[1]),width:iw,height:Y(opts.band[0])-Y(opts.band[1]),
+      fill:opts.color,opacity:.08,rx:3}));
+    const t=el("text",{x:ML+iw+6,y:Y((opts.band[0]+opts.band[1])/2)+4,"font-size":"11",fill:"var(--muted)"});
+    t.textContent="objetivo"; svg.appendChild(t);
+  }
+  // Rejilla + eje Y
+  const step=(vmax-vmin)<=6?1:2;
+  for(let v=vmin; v<=vmax; v+=step){
+    svg.appendChild(el("line",{x1:ML,y1:Y(v),x2:ML+iw,y2:Y(v),stroke:"var(--grid)","stroke-width":1}));
+    const t=el("text",{x:ML-8,y:Y(v)+4,"text-anchor":"end","font-size":"11",fill:"var(--muted)",
+      style:"font-variant-numeric:tabular-nums"});
+    t.textContent=v; svg.appendChild(t);
+  }
+  // Marcas X: lunes alternos
+  let tick=START;
+  while(parse(tick).getDay()!==1) tick=addDays(tick,1);
+  for(let i=0; tick<=END; tick=addDays(tick,14),i++){
+    svg.appendChild(el("line",{x1:X(tick),y1:MT+ih,x2:X(tick),y2:MT+ih+4,stroke:"var(--axis)","stroke-width":1}));
+    const t=el("text",{x:X(tick),y:H-8,"text-anchor":"middle","font-size":"11",fill:"var(--muted)"});
+    t.textContent=shortDate(tick); svg.appendChild(t);
+  }
+  svg.appendChild(el("line",{x1:ML,y1:MT+ih,x2:ML+iw,y2:MT+ih,stroke:"var(--axis)","stroke-width":1}));
+
+  // Línea + puntos (anillo de superficie 2px)
+  if (data.length>1){
+    const dPath=data.map((e,i)=>(i?"L":"M")+X(e.date).toFixed(1)+" "+Y(e.v).toFixed(1)).join(" ");
+    svg.appendChild(el("path",{d:dPath,fill:"none",stroke:opts.color,"stroke-width":2,
+      "stroke-linejoin":"round","stroke-linecap":"round"}));
+  }
+  data.forEach(e => {
+    const c=el("circle",{cx:X(e.date),cy:Y(e.v),r:4.5,fill:opts.color,
+      stroke:"var(--surface-1)","stroke-width":2,tabindex:"0"});
+    c.setAttribute("aria-label", shortDate(e.date)+": "+fmtNum(e.v)+" "+opts.unit);
+    c.addEventListener("focus",()=>showTip(e)); c.addEventListener("blur",hideTip);
+    svg.appendChild(c);
+  });
+  // Etiqueta directa en el último punto
+  const last=data[data.length-1];
+  const lt=el("text",{x:X(last.date)+9,y:Y(last.v)+4,"font-size":"12","font-weight":"600",fill:"var(--text-1)"});
+  lt.textContent=fmtNum(last.v)+" "+opts.unit; svg.appendChild(lt);
+
+  // Crosshair + tooltip
+  const cross=el("line",{x1:0,y1:MT,x2:0,y2:MT+ih,stroke:"var(--axis)","stroke-width":1,visibility:"hidden"});
+  svg.appendChild(cross);
+  const hit=el("rect",{x:ML,y:MT,width:iw,height:ih,fill:"transparent"});
+  svg.appendChild(hit);
+  container.appendChild(svg);
+
+  const tip=document.createElement("div"); tip.className="tooltip";
+  const tDate=document.createElement("div"); tDate.className="tt-date";
+  const tVal=document.createElement("div"); tVal.className="tt-val";
+  const key=document.createElement("span"); key.className="key"; key.style.borderTopColor=opts.color;
+  const tNum=document.createElement("span");
+  tVal.append(key,tNum); tip.append(tDate,tVal); container.appendChild(tip);
+
+  function showTip(e){
+    const r=svg.getBoundingClientRect(), k=r.width/W;
+    cross.setAttribute("x1",X(e.date)); cross.setAttribute("x2",X(e.date));
+    cross.setAttribute("visibility","visible");
+    tDate.textContent=longDate(e.date);
+    tNum.textContent=fmtNum(e.v)+" "+opts.unit;
+    tip.style.display="block";
+    const px=X(e.date)*k, py=Y(e.v)*k;
+    tip.style.left=Math.min(px+12, r.width-tip.offsetWidth-4)+"px";
+    tip.style.top=Math.max(py-tip.offsetHeight-10, 0)+"px";
+  }
+  function hideTip(){ tip.style.display="none"; cross.setAttribute("visibility","hidden"); }
+  hit.addEventListener("pointermove", ev => {
+    const r=svg.getBoundingClientRect();
+    const mx=(ev.clientX-r.left)*(W/r.width);
+    let best=data[0], bd=Infinity;
+    data.forEach(e=>{const d=Math.abs(X(e.date)-mx); if(d<bd){bd=d;best=e;}});
+    showTip(best);
+  });
+  hit.addEventListener("pointerleave", hideTip);
+}
+
+/* ================= Vista Registro ================= */
+function tile(label,value,extra,sub){
+  const t=document.createElement("div"); t.className="tile";
+  const l=document.createElement("div"); l.className="label"; l.textContent=label;
+  const v=document.createElement("div"); v.className="value"; v.textContent=value;
+  t.append(l,v);
+  if (extra){ t.appendChild(extra); }
+  if (sub){ const s=document.createElement("div"); s.className="sub"; s.textContent=sub; t.appendChild(s); }
+  return t;
+}
+function renderTiles(){
+  const box=document.getElementById("tiles"); box.innerHTML="";
+  const ws=entriesOf(state.weights);
+  const cs=entriesOf(state.waists);
+  const first=ws[0], lastW=ws[ws.length-1];
+
+  let delta=null;
+  if (ws.length>1){
+    const d=lastW.v-first.v;
+    delta=document.createElement("div");
+    delta.className="delta "+(d<=0?"good":"bad");
+    delta.textContent=(d>0?"▲ +":"▼ ")+fmtNum(d)+" kg desde el inicio";
+  }
+  box.appendChild(tile("Peso actual", lastW?fmtNum(lastW.v)+" kg":"—", delta, lastW?shortDate(lastW.date):""));
+
+  const lastC=cs[cs.length-1];
+  let deltaC=null;
+  if (cs.length>1){
+    const d=lastC.v-cs[0].v;
+    deltaC=document.createElement("div");
+    deltaC.className="delta "+(d<=0?"good":"bad");
+    deltaC.textContent=(d>0?"▲ +":"▼ ")+fmtNum(d)+" cm desde el inicio";
+  }
+  box.appendChild(tile("Cintura", lastC?fmtNum(lastC.v)+" cm":"—", deltaC,
+      lastC?shortDate(lastC.date):"aún sin medir"));
+
+  const imc=lastW ? lastW.v/(ALTURA_M*ALTURA_M) : null;
+  box.appendChild(tile("IMC", imc?fmtNum(imc):"—", null,
+      "con altura 1,47 m · P95 a su edad = 24,15"));
+
+  // Cumplimiento últimos 7 días
+  const today=clampDay(fmt(new Date()));
+  let sum=0,n=0;
+  for(let i=0;i<7;i++){
+    const d=addDays(today,-i);
+    if (d<START) break;
+    sum+=(state.checks[d]||[]).length; n++;
+  }
+  box.appendChild(tile("Hábitos (últimos 7 días)", n?Math.round(sum/(n*HABITS.length)*100)+" %":"—",
+      null, "media de hábitos cumplidos"));
+}
+function renderRegistro(){
+  renderTiles();
+  lineChart(document.getElementById("chartPeso"), entriesOf(state.weights),
+    {color:"var(--series-peso)", unit:"kg", band:[51,54], minPad:1.5,
+     aria:"Evolución del peso semanal en kilogramos",
+     emptyMsg:"Sin registros de peso todavía."});
+  lineChart(document.getElementById("chartCintura"), entriesOf(state.waists),
+    {color:"var(--series-cintura)", unit:"cm", band:null, minPad:2,
+     aria:"Evolución de la cintura en centímetros",
+     emptyMsg:"Aún no hay medidas de cintura. Mídela hoy (de pie, relajado, en el ombligo) y añádela: es el dato de partida más importante."});
+  renderHeat();
+  renderRecords();
+}
+
+/* --- Altas y bajas de registros --- */
+function addEntry(kind, dateId, valId, min, max){
+  const date=document.getElementById(dateId).value;
+  const v=parseFloat(document.getElementById(valId).value);
+  if(!date || isNaN(v) || v<min || v>max) return;
+  state[kind][date]=v;
+  save(); pushPart(kind+"/"+date, v);
+  document.getElementById(valId).value=""; renderRegistro();
+}
+document.getElementById("wAdd").addEventListener("click",()=>addEntry("weights","wDate","wVal",30,90));
+document.getElementById("cAdd").addEventListener("click",()=>addEntry("waists","cDate","cVal",40,120));
+
+function renderRecords(){
+  const box=document.getElementById("recordsTable"); box.innerHTML="";
+  const rows=[
+    ...entriesOf(state.weights).map(e=>({...e,tipo:"Peso",unit:"kg",kind:"weights"})),
+    ...entriesOf(state.waists).map(e=>({...e,tipo:"Cintura",unit:"cm",kind:"waists"}))
+  ].sort((a,b)=>a.date<b.date?1:-1);
+  if(!rows.length){ box.innerHTML='<p class="empty">Sin registros.</p>'; return; }
+  const table=document.createElement("table");
+  table.innerHTML="<thead><tr><th>Fecha</th><th>Medida</th><th>Valor</th><th></th></tr></thead>";
+  const tb=document.createElement("tbody");
+  rows.forEach(r=>{
+    const tr=document.createElement("tr");
+    const td1=document.createElement("td"); td1.textContent=parse(r.date).toLocaleDateString("es-ES");
+    const td2=document.createElement("td"); td2.textContent=r.tipo;
+    const td3=document.createElement("td"); td3.textContent=fmtNum(r.v)+" "+r.unit;
+    const td4=document.createElement("td");
+    const del=document.createElement("button"); del.className="btn"; del.textContent="Borrar";
+    del.addEventListener("click",()=>{
+      delete state[r.kind][r.date];
+      save(); pushPart(r.kind+"/"+r.date, null); renderRegistro();
+    });
+    td4.appendChild(del); tr.append(td1,td2,td3,td4); tb.appendChild(tr);
+  });
+  table.appendChild(tb); box.appendChild(table);
+}
+
+/* --- Mapa de cumplimiento --- */
+function renderHeat(){
+  const box=document.getElementById("heat"); box.innerHTML="";
+  const today=fmt(new Date());
+  // Empezar en el lunes de la semana del inicio
+  let d=START;
+  while(parse(d).getDay()!==1) d=addDays(d,-1);
+  for(; d<=END; d=addDays(d,1)){
+    const cell=document.createElement("button"); cell.className="cell";
+    if (d<START){ cell.classList.add("off"); cell.disabled=true; box.appendChild(cell); continue; }
+    const done=(state.checks[d]||[]).length;
+    const f=done/HABITS.length;
+    let bg="var(--surface-1)";
+    if (f>0) bg = f<0.3?"var(--heat-1)" : f<0.5?"var(--heat-2)" : f<0.7?"var(--heat-3)" : f<0.9?"var(--heat-4)" : "var(--heat-5)";
+    cell.style.background=bg;
+    if (d>today){ cell.classList.add("future"); cell.style.background="var(--surface-1)"; }
+    if (d===today) cell.classList.add("today");
+    const info=longDate(d)+" — "+done+" de "+HABITS.length+" hábitos";
+    cell.title=info; cell.setAttribute("aria-label",info);
+    const dd=d;
+    cell.addEventListener("click",()=>{ currentDay=dd; renderDay(); openTab("hoy"); });
+    box.appendChild(cell);
+  }
+}
+
+/* ================= Menú de 14 días (Guía) ================= */
+(function(){
+  const box=document.getElementById("menuTable");
+  const table=document.createElement("table");
+  table.innerHTML="<thead><tr><th>Día</th><th>Desayuno</th><th>Comida</th><th>Merienda</th><th>Cena</th></tr></thead>";
+  const tb=document.createElement("tbody");
+  MENUS.forEach((m,i)=>{
+    const tr=document.createElement("tr");
+    [String(i+1),m.d,m.c,m.me,m.ce].forEach(t=>{
+      const td=document.createElement("td"); td.textContent=t; tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  table.appendChild(tb); box.appendChild(table);
+})();
+
+/* ================= Exportar / importar ================= */
+document.getElementById("btnExport").addEventListener("click",()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="control-peso-"+fmt(new Date())+".json";
+  a.click(); URL.revokeObjectURL(a.href);
+});
+document.getElementById("btnImport").addEventListener("click",()=>document.getElementById("fileImport").click());
+document.getElementById("fileImport").addEventListener("change", e=>{
+  const f=e.target.files[0]; if(!f) return;
+  f.text().then(txt=>{
+    try{
+      const s=JSON.parse(txt);
+      if(!s || typeof s!=="object" || !("weights" in s)) throw new Error("formato");
+      state=normalize(s);
+      save(); if (cloudRef) cloudRef.set(state);
+      renderDay(); renderRegistro();
+      alert("Datos importados correctamente.");
+    }catch(err){ alert("El archivo no tiene un formato válido."); }
+  });
+  e.target.value="";
+});
+
+/* ================= Nube (Firebase Realtime Database) ================= */
+let cloudRef=null;
+function setSync(mode){
+  const msgs={
+    ok:"☁️ Sincronizado",
+    offline:"⚠️ Sin conexión — se guarda en este dispositivo",
+    local:"💾 Solo en este dispositivo (nube sin configurar)",
+    error:"⚠️ Error de sincronización"
+  };
+  document.getElementById("syncStatus").textContent=msgs[mode];
+}
+function pushPart(path, value){
+  if(!cloudRef) return;
+  if (value===null || value===undefined) cloudRef.child(path).remove();
+  else cloudRef.child(path).set(value);
+}
+function initCloud(){
+  if (!FIREBASE_CONFIG || typeof firebase==="undefined"){ setSync("local"); return; }
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    cloudRef=firebase.database().ref("familias/"+FAMILY_KEY);
+    firebase.database().ref(".info/connected").on("value", s=>{ if (s.val()===false) setSync("offline"); });
+    cloudRef.on("value", snap=>{
+      const remote=snap.val();
+      if (remote===null){ cloudRef.set(state); setSync("ok"); return; }
+      const norm=normalize(remote);
+      if (JSON.stringify(norm)!==JSON.stringify(state)){
+        state=norm; save();
+        renderDay();
+        if (!document.getElementById("tab-registro").hidden) renderRegistro();
+      }
+      setSync("ok");
+    }, ()=>setSync("error"));
+  }catch(e){ setSync("error"); }
+}
+
+/* ================= Inicio ================= */
+const todayStr=fmt(new Date());
+document.getElementById("wDate").value=todayStr;
+document.getElementById("cDate").value=todayStr;
+renderDay();
+initCloud();
+const hash=location.hash.replace("#","");
+if (["hoy","registro","guia"].includes(hash)) openTab(hash);
+</script>
+</body>
+</html>
