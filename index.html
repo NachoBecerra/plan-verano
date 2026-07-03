@@ -150,6 +150,13 @@
     <div class="card">
       <h2>🍽️ Menú del día</h2>
       <dl class="meals" id="dayMeals"></dl>
+      <details>
+        <summary>📏 Cantidades de referencia (para quien cocina)</summary>
+        <div id="racionesHoy" style="margin-top:10px"></div>
+        <p style="font-size:13px;color:var(--text-2);margin:8px 0 0">
+          Pesa en la cocina las 1–2 primeras semanas para calibrar el ojo; después basta
+          la medida visual. Nunca pesar la comida delante de él.</p>
+      </details>
     </div>
 
     <div class="card">
@@ -274,6 +281,24 @@
     </div>
 
     <div class="card">
+      <h2>🥄 Cuánto es una ración (10–12 años)</h2>
+      <p style="font-size:14px;color:var(--text-2);margin:0 0 10px">
+        Cantidades orientativas por ración, tomadas de las guías españolas de comedores
+        escolares (AESAN) para su tramo de edad. Son para <strong>quien cocina y sirve</strong>:
+        las 1–2 primeras semanas pesa en la cocina para calibrar, luego usa la medida visual.
+        Nunca convertir la mesa en una báscula ni pesar delante de él.</p>
+      <div id="racionesGuia"></div>
+      <ul class="compact" style="margin-top:10px">
+        <li>La <strong>verdura y la ensalada no tienen límite</strong>: si se queda con hambre,
+            se repite de eso (o fruta), nunca del hidrato o la proteína.</li>
+        <li>Frecuencias semanales: pescado 3–4, carne 2–3 (mejor blanca), legumbre 2–4,
+            huevos 3–5; lácteos 3–4 al día y fruta 3 piezas al día.</li>
+        <li>El aceite de oliva cuenta: 1 cucharada sopera por comida entre cocinar y aliñar
+            es suficiente; los fritos, solo el día de comida libre.</li>
+      </ul>
+    </div>
+
+    <div class="card">
       <h2>🗓️ Menú rotativo de 14 días</h2>
       <details><summary>Ver los 14 menús (útil para la compra semanal)</summary>
         <div id="menuTable" style="margin-top:10px"></div>
@@ -353,6 +378,24 @@ const MENUS = [
  {d:"Yogur natural + fruta", mm:"Fruta", c:"Comida familiar libre o pizza (máx. 1 vez/semana)", me:"Yogur natural", ce:"Ensalada completa de pollo + fruta"}
 ];
 const FUERZA = "Rutina de fuerza (15–20 min): 3×10 sentadillas · 3×8 zancadas por pierna · 3×20–30 s plancha · 3×8 flexiones inclinadas · 10 saltos suaves · movilidad.";
+const RACIONES = [
+ ["Arroz / pasta / cuscús", "60–80 g en crudo", "cocido, ≈ su puño y medio"],
+ ["Patata / boniato", "150–200 g", "1 patata mediana"],
+ ["Pan", "40–60 g", "1 panecillo o 3–4 dedos de barra"],
+ ["Legumbres", "60–80 g en crudo", "1 plato normal ya cocidas"],
+ ["Verdura / ensalada", "150–200 g (mínimo)", "½ plato — sin límite si repite"],
+ ["Carne magra (pollo, pavo, ternera)", "90–110 g", "1 filete como la palma de su mano"],
+ ["Pescado", "100–120 g", "1 filete o rodaja, palma con dedos"],
+ ["Huevos", "2 medianos", "tortilla francesa de 2 huevos"],
+ ["Leche", "200–250 ml", "1 vaso o taza"],
+ ["Yogur natural / kéfir", "125 g", "1 unidad, sin azucarar"],
+ ["Queso fresco", "40–60 g", "2 dedos de grosor"],
+ ["Fruta", "120–200 g", "1 pieza mediana o 2 rodajas de sandía/melón"],
+ ["Avena", "25–30 g", "3 cucharadas soperas"],
+ ["Frutos secos (al natural o tostados)", "20–25 g", "un puñado de SU mano"],
+ ["Aceite de oliva", "≈10 ml por comida", "1 cucharada sopera (cocinar + aliñar)"],
+ ["Jamón / fiambre de pavo (bocadillo)", "30–40 g", "2 lonchas finas"]
+];
 const EXERCISE = { // por día de la semana (0=domingo)
   1:{t:"Aeróbico + fuerza", d:["Día de medición: peso en ayunas por la mañana (y cintura si toca).","45–60 min de paseo rápido o bici (mejor a primera hora, antes del calor).", FUERZA]},
   2:{t:"Día de piscina / balón", d:["60 min de piscina (nadar de verdad, no solo flotar), bici o balón."]},
@@ -726,6 +769,22 @@ function renderHeat(){
     box.appendChild(cell);
   }
 }
+
+/* ================= Tabla de raciones (Hoy y Guía) ================= */
+(function(){
+  ["racionesHoy","racionesGuia"].forEach(id=>{
+    const box=document.getElementById(id);
+    const table=document.createElement("table");
+    table.innerHTML="<thead><tr><th>Alimento</th><th>Ración</th><th>Medida visual</th></tr></thead>";
+    const tb=document.createElement("tbody");
+    RACIONES.forEach(r=>{
+      const tr=document.createElement("tr");
+      r.forEach(t=>{ const td=document.createElement("td"); td.textContent=t; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+    table.appendChild(tb); box.appendChild(table);
+  });
+})();
 
 /* ================= Menú de 14 días (Guía) ================= */
 (function(){
