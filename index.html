@@ -115,10 +115,14 @@
   /* Fichas de ejercicios */
   .ex{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--grid);align-items:flex-start;}
   .ex:first-child{border-top:none;}
-  .ex svg{flex:0 0 110px;height:96px;}
+  .ex svg{flex:0 0 160px;height:100px;}
   .ex svg .fig{stroke:var(--text-1);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;}
-  .ex svg .suelo{stroke:var(--axis);stroke-width:2;}
-  .ex svg .mov{stroke:var(--accent);stroke-width:2.5;fill:none;stroke-linecap:round;}
+  .ex svg .ghost{stroke:var(--muted);opacity:.5;}
+  .ex svg .suelo{stroke:var(--axis);stroke-width:2;fill:none;}
+  .ex svg .mov{stroke:var(--accent);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .ex .vid{display:inline-block;margin-top:8px;font-size:13px;font-weight:600;
+           color:var(--accent);text-decoration:none;}
+  .ex .vid:hover{text-decoration:underline;}
   .ex h4{margin:0 0 4px;font-size:14.5px;}
   .ex .dose{color:var(--muted);font-weight:600;font-size:12.5px;margin-left:6px;}
   .ex ol{margin:0;padding-left:18px;font-size:13.5px;}
@@ -398,38 +402,38 @@ const MENUS = [
 ];
 const FUERZA = "Rutina de fuerza (15–20 min): 3×10 sentadillas · 3×8 zancadas por pierna · 3×20–30 s plancha · 3×8 flexiones inclinadas · 10 saltos suaves · movilidad.";
 const EJERCICIOS = [
- {n:"Sentadilla", dose:"3 series × 10",
-  svg:'<circle class="fig" cx="47" cy="25" r="7"/><path class="fig" d="M50 32 L42 58"/><path class="fig" d="M49 36 L78 40"/><path class="fig" d="M42 58 L64 64 L62 88"/><path class="fig" d="M58 90 L74 90"/><path class="mov" d="M90 50 L90 76"/><path class="mov" d="M86 54 L90 50 L94 54"/><path class="mov" d="M86 72 L90 76 L94 72"/><line class="suelo" x1="8" y1="90" x2="102" y2="90"/>',
+ {n:"Sentadilla", dose:"3 series × 10", video:"https://www.youtube.com/results?search_query=como+hacer+sentadillas+sin+peso+tecnica",
+  svg:'<circle class="fig ghost" cx="42" cy="16" r="7"/><path class="fig ghost" d="M42 23 L42 54"/><path class="fig ghost" d="M42 31 L60 33"/><path class="fig ghost" d="M42 54 L38 88"/><path class="fig ghost" d="M42 54 L48 88"/><circle class="fig" cx="109" cy="36" r="7"/><path class="fig" d="M112 43 L104 62"/><path class="fig" d="M111 47 L138 51"/><path class="fig" d="M104 62 L126 68 L122 88"/><path class="fig" d="M118 90 L134 90"/><path class="mov" d="M72 38 Q80 50 82 62"/><path class="mov" d="M76 57 L82 62 L85 55"/><line class="suelo" x1="6" y1="90" x2="164" y2="90"/>',
   pasos:["Pies a la anchura de los hombros, puntas un poco hacia fuera, brazos estirados al frente.",
          "Baja llevando el culo atrás y abajo, como para sentarte en una silla, hasta que los muslos queden casi paralelos al suelo.",
          "Sube empujando el suelo con los talones."],
   ojo:"Los talones no se despegan, las rodillas apuntan hacia las puntas de los pies (no hacia dentro) y la espalda va recta con la mirada al frente."},
- {n:"Zancada", dose:"3 series × 8 por pierna",
-  svg:'<circle class="fig" cx="57" cy="20" r="7"/><path class="fig" d="M57 27 L57 56"/><path class="fig" d="M57 34 L47 50"/><path class="fig" d="M57 34 L67 48"/><path class="fig" d="M57 56 L76 68 L76 88"/><path class="fig" d="M71 90 L86 90"/><path class="fig" d="M57 56 L44 80 L32 86"/><path class="fig" d="M26 90 L36 90"/><line class="suelo" x1="8" y1="90" x2="102" y2="90"/>',
+ {n:"Zancada", dose:"3 series × 8 por pierna", video:"https://www.youtube.com/results?search_query=como+hacer+zancadas+tecnica+principiantes",
+  svg:'<circle class="fig ghost" cx="38" cy="18" r="7"/><path class="fig ghost" d="M38 25 L38 56"/><path class="fig ghost" d="M38 32 L32 46"/><path class="fig ghost" d="M38 32 L44 46"/><path class="fig ghost" d="M38 56 L34 88"/><path class="fig ghost" d="M38 56 L44 88"/><circle class="fig" cx="98" cy="24" r="7"/><path class="fig" d="M98 31 L98 58"/><path class="fig" d="M98 36 L92 50"/><path class="fig" d="M98 36 L105 49"/><path class="fig" d="M98 58 L118 70 L118 88"/><path class="fig" d="M114 90 L130 90"/><path class="fig" d="M98 58 L86 82 L74 86"/><path class="fig" d="M70 90 L80 90"/><path class="mov" d="M56 48 Q66 56 71 66"/><path class="mov" d="M65 63 L71 66 L72 59"/><line class="suelo" x1="6" y1="90" x2="164" y2="90"/>',
   pasos:["De pie, da un paso largo al frente.",
          "Baja el cuerpo en vertical hasta que la rodilla de atrás casi toque el suelo; las dos rodillas quedan en ángulo recto.",
          "Empuja con la pierna de delante para volver a la posición inicial y cambia de pierna."],
   ojo:"La rodilla delantera no debe pasar de la punta del pie y el tronco va vertical, sin inclinarse. Si pierde el equilibrio, el paso era demasiado corto."},
- {n:"Plancha", dose:"3 × 20–30 segundos",
-  svg:'<circle class="fig" cx="18" cy="48" r="6.5"/><path class="fig" d="M27 53 L88 64"/><path class="fig" d="M30 54 L28 76 L44 78"/><path class="fig" d="M88 64 L93 80"/><line class="suelo" x1="8" y1="82" x2="102" y2="82"/><path class="mov" d="M50 40 L76 45" stroke-dasharray="2 5"/>',
+ {n:"Plancha", dose:"3 × 20–30 segundos", video:"https://www.youtube.com/results?search_query=como+hacer+la+plancha+abdominal+correctamente",
+  svg:'<path class="mov" d="M26 40 L140 60" stroke-dasharray="3 6"/><circle class="fig" cx="30" cy="50" r="7"/><path class="fig" d="M39 55 L118 68"/><path class="fig" d="M42 56 L40 76 L58 78"/><path class="fig" d="M118 68 L124 80"/><line class="suelo" x1="6" y1="82" x2="164" y2="82"/>',
   pasos:["Túmbate boca abajo y apóyate en antebrazos y puntas de los pies, con los codos justo debajo de los hombros.",
          "Forma una línea recta de la cabeza a los talones, apretando la tripa y el culete.",
          "Aguanta el tiempo marcado respirando con normalidad."],
   ojo:"Ni dejar caer la cadera ni levantar el culo: el cuerpo recto como una tabla. Si tiembla mucho, se apoyan las rodillas y se acorta el tiempo — cuenta igual."},
- {n:"Flexión inclinada", dose:"3 series × 8",
-  svg:'<rect class="fig" x="14" y="62" width="22" height="26" rx="2"/><path class="fig" d="M25 62 L41 47"/><circle class="fig" cx="45" cy="39" r="6.5"/><path class="fig" d="M41 47 L83 77"/><path class="fig" d="M83 77 L87 88"/><line class="suelo" x1="8" y1="88" x2="102" y2="88"/><path class="mov" d="M34 42 L26 52"/><path class="mov" d="M27 46 L26 52 L32 53"/>',
+ {n:"Flexión inclinada", dose:"3 series × 8", video:"https://www.youtube.com/results?search_query=flexiones+inclinadas+principiantes+tecnica",
+  svg:'<rect class="fig" x="18" y="60" width="24" height="28" rx="2"/><path class="fig ghost" d="M30 60 L54 40"/><circle class="fig ghost" cx="59" cy="33" r="6.5"/><path class="fig ghost" d="M54 40 L102 74"/><circle class="fig" cx="48" cy="45" r="6.5"/><path class="fig" d="M30 60 L42 50"/><path class="fig" d="M42 50 L102 76"/><path class="fig" d="M102 76 L106 88"/><path class="mov" d="M66 34 L56 46"/><path class="mov" d="M56 39 L56 46 L63 47"/><line class="suelo" x1="6" y1="88" x2="164" y2="88"/>',
   pasos:["Apoya las manos en un banco, el sofá o el borde de la cama, algo más abiertas que los hombros, con el cuerpo recto en diagonal.",
          "Baja el pecho hacia el apoyo doblando los codos.",
          "Empuja fuerte para volver arriba sin arquear la espalda."],
   ojo:"Baja el cuerpo entero en bloque, no solo la cabeza. Los codos van hacia atrás en diagonal, no abiertos en cruz. Cuanto más alto el apoyo, más fácil: si no llega a 8, usar un apoyo más alto."},
- {n:"Saltos suaves", dose:"10 saltos",
-  svg:'<circle class="fig" cx="55" cy="18" r="7"/><path class="fig" d="M55 25 L55 48"/><path class="fig" d="M55 31 L41 42"/><path class="fig" d="M55 31 L69 42"/><path class="fig" d="M55 48 L47 60 L51 73"/><path class="fig" d="M55 48 L63 60 L59 73"/><path class="mov" d="M84 44 L84 22"/><path class="mov" d="M80 26 L84 22 L88 26"/><path class="suelo" d="M42 84 Q47 80 52 84" fill="none"/><path class="suelo" d="M58 84 Q63 80 68 84" fill="none"/><line class="suelo" x1="8" y1="90" x2="102" y2="90"/>',
+ {n:"Saltos suaves", dose:"10 saltos", video:"https://www.youtube.com/results?search_query=jumping+jacks+para+ninos",
+  svg:'<circle class="fig ghost" cx="40" cy="40" r="6.5"/><path class="fig ghost" d="M40 47 L38 62"/><path class="fig ghost" d="M40 51 L30 60"/><path class="fig ghost" d="M38 62 L48 68 L44 86"/><circle class="fig" cx="105" cy="12" r="7"/><path class="fig" d="M105 19 L105 42"/><path class="fig" d="M105 25 L92 16"/><path class="fig" d="M105 25 L118 16"/><path class="fig" d="M105 42 L98 54 L102 66"/><path class="fig" d="M105 42 L112 54 L108 66"/><path class="suelo" d="M96 78 Q101 74 106 78"/><path class="suelo" d="M110 78 Q115 74 120 78"/><path class="mov" d="M136 60 L136 30"/><path class="mov" d="M131 35 L136 30 L141 35"/><line class="suelo" x1="6" y1="90" x2="164" y2="90"/>',
   pasos:["Saltos pequeños en el sitio (o abriendo y cerrando piernas a la vez que los brazos, como un muñeco).",
          "Caer siempre con las rodillas un poco flexionadas y sin hacer ruido — como un portero cayendo bien tras una parada.",
          "Ritmo tranquilo: es coordinación y hueso, no un sprint."],
   ojo:"Aterrizar suave con la parte delantera del pie y las rodillas nunca bloqueadas. Mejor descalzo no: con zapatillas."},
- {n:"Movilidad", dose:"5–10 min para terminar",
-  svg:'<circle class="fig" cx="52" cy="24" r="7"/><path class="fig" d="M52 31 C50 44 54 50 52 60"/><path class="fig" d="M52 60 L45 88"/><path class="fig" d="M52 60 L60 88"/><path class="fig" d="M52 34 C46 24 44 16 42 10"/><path class="fig" d="M52 34 C58 22 62 14 66 9"/><path class="mov" d="M70 20 Q78 14 84 18"/><path class="mov" d="M80 15 L84 18 L82 23"/><line class="suelo" x1="8" y1="90" x2="102" y2="90"/>',
+ {n:"Movilidad", dose:"5–10 min para terminar", video:"https://www.youtube.com/results?search_query=estiramientos+y+movilidad+para+ninos+futbol",
+  svg:'<circle class="fig" cx="45" cy="22" r="7"/><path class="fig" d="M45 29 L45 60"/><path class="fig" d="M45 60 L39 88"/><path class="fig" d="M45 60 L51 88"/><path class="fig" d="M45 33 L37 12"/><path class="fig" d="M45 33 L53 11"/><path class="fig" d="M120 58 L114 88"/><path class="fig" d="M120 58 L126 88"/><path class="fig" d="M120 58 Q128 44 137 46"/><circle class="fig" cx="143" cy="50" r="6"/><path class="fig" d="M136 46 L124 80"/><path class="mov" d="M152 34 Q160 46 152 58"/><path class="mov" d="M152 52 L152 58 L158 57"/><line class="suelo" x1="6" y1="90" x2="164" y2="90"/>',
   pasos:["Círculos amplios de brazos, hombros y caderas.",
          "Estirar hacia el techo y luego bajar a tocar las puntas de los pies con las rodillas un poco dobladas.",
          "Estiramiento de cuádriceps (talón al culete de pie) e isquios, 20 segundos por lado, y «gato-vaca» a cuatro patas."],
@@ -834,7 +838,7 @@ function renderHeat(){
     EJERCICIOS.forEach(ej=>{
       const row=document.createElement("div"); row.className="ex";
       const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
-      svg.setAttribute("viewBox","0 0 110 96");
+      svg.setAttribute("viewBox","0 0 170 100");
       svg.setAttribute("role","img");
       svg.setAttribute("aria-label","Dibujo del ejercicio: "+ej.n);
       svg.innerHTML=ej.svg;
@@ -845,7 +849,10 @@ function renderHeat(){
       const ol=document.createElement("ol");
       ej.pasos.forEach(p=>{ const li=document.createElement("li"); li.textContent=p; ol.appendChild(li); });
       const ojo=document.createElement("p"); ojo.className="ojo"; ojo.textContent="⚠️ "+ej.ojo;
-      txt.append(h,ol,ojo);
+      const vid=document.createElement("a");
+      vid.className="vid"; vid.href=ej.video; vid.target="_blank"; vid.rel="noopener";
+      vid.textContent="▶ Ver vídeos de la técnica";
+      txt.append(h,ol,ojo,vid);
       row.append(svg,txt); box.appendChild(row);
     });
   });
