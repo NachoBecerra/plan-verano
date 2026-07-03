@@ -31,54 +31,87 @@
     }
   }
   *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   body{margin:0;background:var(--page);color:var(--text-1);
-       font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;}
-  .wrap{max-width:860px;margin:0 auto;padding:16px 16px 64px;}
-  header h1{font-size:22px;margin:8px 0 2px;}
-  header p{margin:0 0 12px;color:var(--text-2);font-size:14px;}
-  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+       font:15.5px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}
+  .wrap{max-width:860px;margin:0 auto;padding:16px 16px 96px;}
+  h1,h2,h3,h4{text-wrap:balance;}
+  header h1{font-size:21px;margin:6px 0 4px;}
+  header .sub{margin:0 0 14px;color:var(--text-2);font-size:13.5px;}
 
-  nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--grid);margin-bottom:16px;}
+  /* Pestañas: barra inferior fija en móvil, superior en pantalla grande */
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:4px;
+    background:var(--surface-1);border-top:1px solid var(--grid);
+    padding:6px 10px calc(8px + env(safe-area-inset-bottom));}
   nav.tabs button{appearance:none;border:none;background:none;color:var(--text-2);
-    font:600 15px/1 inherit;padding:10px 14px;cursor:pointer;border-bottom:2px solid transparent;}
-  nav.tabs button[aria-selected="true"]{color:var(--text-1);border-bottom-color:var(--accent);}
+    font:600 12px/1.2 inherit;padding:6px 4px 7px;cursor:pointer;border-radius:12px;
+    display:flex;flex-direction:column;align-items:center;gap:3px;}
+  nav.tabs button .ico{font-size:22px;line-height:1;}
+  nav.tabs button[aria-selected="true"]{color:var(--accent);
+    background:color-mix(in srgb,var(--accent) 12%,var(--surface-1));}
 
-  .card{background:var(--surface-1);border:1px solid var(--border);border-radius:10px;
-        padding:16px;margin-bottom:16px;}
-  .card h2{font-size:16px;margin:0 0 10px;}
-  .card h3{font-size:14px;margin:14px 0 6px;color:var(--text-2);}
+  .card{background:var(--surface-1);border:1px solid var(--border);border-radius:14px;
+        padding:18px 16px;margin-bottom:14px;}
+  .card h2{font-size:17px;margin:0 0 12px;}
+  .card h3{font-size:14.5px;margin:16px 0 8px;color:var(--text-2);}
+  .hint{font-size:13.5px;color:var(--text-2);margin:0 0 10px;}
 
-  /* Día */
-  .daynav{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
-  .daynav .title{font-size:17px;font-weight:700;flex:1;min-width:180px;}
-  .btn{appearance:none;border:1px solid var(--border);background:var(--surface-1);
-       color:var(--text-1);border-radius:8px;padding:7px 12px;font:600 14px/1 inherit;cursor:pointer;}
+  /* Botones e inputs */
+  .btn{appearance:none;border:1px solid var(--border);border-radius:12px;
+       background:color-mix(in srgb,var(--text-1) 5%,var(--surface-1));
+       color:var(--text-1);min-height:42px;padding:8px 16px;
+       font:600 14.5px/1.2 inherit;cursor:pointer;}
   .btn:hover{border-color:var(--axis);}
-  .btn.small{padding:5px 9px;font-size:13px;}
-  input[type="date"],input[type="number"]{border:1px solid var(--border);background:var(--surface-1);
-       color:var(--text-1);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px;}
-  .banner{border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface-1));
-          padding:8px 12px;border-radius:6px;font-size:14px;margin-bottom:12px;}
-  .meals{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:14px;}
-  .meals dt{color:var(--muted);font-weight:600;}
-  .meals dd{margin:0;}
-  ul.compact{margin:4px 0;padding-left:20px;font-size:14px;}
-  .checklist{display:grid;gap:6px;margin-top:4px;}
-  .checklist label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--border);
-        border-radius:8px;cursor:pointer;font-size:14px;}
+  .btn:active{transform:scale(.98);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn.icon{min-width:44px;padding:8px 10px;font-size:16px;}
+  input[type="date"],input[type="number"]{border:1px solid var(--border);
+       background:color-mix(in srgb,var(--text-1) 4%,var(--surface-1));
+       color:var(--text-1);border-radius:12px;min-height:42px;padding:8px 12px;
+       font:inherit;font-size:15px;width:100%;}
+
+  /* Navegación del día */
+  .daynav{display:grid;grid-template-columns:44px 1fr 44px;gap:8px;
+          align-items:center;margin-bottom:10px;}
+  .daycenter{text-align:center;min-width:0;}
+  .daycenter .daytitle{font-size:17px;font-weight:700;}
+  .daycenter .daysub{font-size:12.5px;color:var(--muted);}
+  .dayrow2{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:14px;}
+  .banner{border-left:3px solid var(--accent);
+          background:color-mix(in srgb,var(--accent) 9%,var(--surface-1));
+          padding:12px 14px;border-radius:10px;font-size:14.5px;margin-bottom:12px;}
+
+  /* Menú del día */
+  .meals{margin:0;}
+  .meals dt{color:var(--muted);font-weight:600;font-size:12px;
+            text-transform:uppercase;letter-spacing:.05em;margin:12px 0 2px;}
+  .meals dt:first-child{margin-top:0;}
+  .meals dd{margin:0;font-size:15px;padding-bottom:10px;border-bottom:1px solid var(--grid);}
+  .meals dd:last-of-type{border-bottom:none;padding-bottom:0;}
+  ul.compact{margin:4px 0;padding-left:20px;font-size:14.5px;}
+  ul.compact li{margin:6px 0;}
+
+  /* Hábitos */
+  .checklist{display:grid;gap:10px;margin-top:4px;}
+  .checklist label{display:flex;gap:12px;align-items:center;padding:12px 14px;
+        border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:14.5px;
+        background:color-mix(in srgb,var(--text-1) 3%,var(--surface-1));}
   .checklist label:hover{border-color:var(--axis);}
-  .checklist input{margin-top:2px;accent-color:var(--accent);width:16px;height:16px;}
-  .checklist label.done{background:color-mix(in srgb,var(--accent) 7%,var(--surface-1));}
-  textarea{width:100%;min-height:64px;border:1px solid var(--border);border-radius:8px;
-        background:var(--surface-1);color:var(--text-1);font:inherit;font-size:14px;padding:8px 10px;resize:vertical;}
-  .daymeter{font-size:13px;color:var(--text-2);margin-top:8px;}
+  .checklist input{margin:0;accent-color:var(--accent);width:20px;height:20px;flex:none;}
+  .checklist label.done{background:color-mix(in srgb,var(--accent) 10%,var(--surface-1));
+        border-color:color-mix(in srgb,var(--accent) 45%,var(--border));}
+  textarea{width:100%;min-height:72px;border:1px solid var(--border);border-radius:12px;
+        background:color-mix(in srgb,var(--text-1) 3%,var(--surface-1));color:var(--text-1);
+        font:inherit;font-size:15px;padding:10px 12px;resize:vertical;}
+  .daymeter{font-size:13px;color:var(--text-2);margin-top:12px;}
   .meterbar{height:8px;border-radius:4px;background:color-mix(in srgb,var(--accent) 15%,var(--surface-1));
-        overflow:hidden;margin-top:4px;}
+        overflow:hidden;margin-top:6px;}
   .meterbar>div{height:100%;background:var(--accent);border-radius:4px;}
 
   /* Stat tiles */
-  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px;}
-  .tile{background:var(--surface-1);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px;}
+  .tile{background:var(--surface-1);border:1px solid var(--border);border-radius:14px;padding:14px;}
   .tile .label{font-size:13px;color:var(--text-2);}
   .tile .value{font-size:26px;font-weight:600;margin-top:2px;}
   .tile .delta{font-size:13px;font-weight:600;margin-top:2px;}
@@ -96,22 +129,44 @@
   .tooltip .key{display:inline-block;width:14px;height:0;border-top:3px solid;border-radius:2px;}
   .empty{color:var(--muted);font-size:14px;padding:8px 0;}
 
-  /* Tables */
+  /* Tabla de registros */
   table{width:100%;border-collapse:collapse;font-size:14px;}
-  th{text-align:left;color:var(--text-2);font-weight:600;border-bottom:1px solid var(--grid);padding:6px 8px;}
-  td{border-bottom:1px solid var(--grid);padding:6px 8px;font-variant-numeric:tabular-nums;}
-  td .btn{padding:2px 8px;font-size:12px;}
-  .addrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 4px;}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;
+     letter-spacing:.04em;border-bottom:1px solid var(--grid);padding:8px 6px;}
+  td{border-bottom:1px solid var(--grid);padding:10px 6px;font-variant-numeric:tabular-nums;}
+  td .btn{min-height:32px;padding:4px 12px;font-size:13px;border-radius:9px;}
+
+  /* Alta de peso/cintura */
+  .addrow{display:grid;grid-template-columns:1fr 104px;gap:8px;margin:0 0 12px;}
+  .addrow .btn{grid-column:1 / -1;}
+
+  /* Raciones (fichas) */
+  .rac{padding:10px 0;border-top:1px solid var(--grid);
+       display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 12px;}
+  .rac:first-child{border-top:none;padding-top:0;}
+  .rac-n{font-weight:600;font-size:14.5px;}
+  .rac-q{font-weight:700;font-size:14.5px;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .rac-v{flex-basis:100%;color:var(--text-2);font-size:13.5px;}
+
+  /* Menú de 14 días (fichas) */
+  .menu14{border-top:1px solid var(--grid);padding:12px 0;}
+  .menu14:first-child{border-top:none;padding-top:0;}
+  .menu14 .d{font-weight:700;margin-bottom:4px;}
+  .menu14 p{margin:3px 0;font-size:14px;}
+  .menu14 p b{color:var(--muted);font-weight:600;}
+
+  .btnrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
   /* Heatmap */
-  .heat{display:grid;grid-template-columns:repeat(7,28px);gap:3px;}
-  .heat .cell{width:28px;height:28px;border-radius:5px;border:1px solid var(--grid);
-        cursor:pointer;font-size:0;}
+  .heat,.heathead{--cell:34px;}
+  .heat{display:grid;grid-template-columns:repeat(7,var(--cell));gap:4px;justify-content:center;}
+  .heat .cell{width:var(--cell);height:var(--cell);border-radius:7px;border:1px solid var(--grid);
+        cursor:pointer;font-size:0;padding:0;}
   .heat .cell.off{visibility:hidden;cursor:default;}
   .heat .cell.future{border-style:dashed;cursor:default;}
   .heat .cell.today{outline:2px solid var(--accent);outline-offset:1px;}
-  .heathead{display:grid;grid-template-columns:repeat(7,28px);gap:3px;font-size:11px;
-        color:var(--muted);text-align:center;margin-bottom:4px;}
+  .heathead{display:grid;grid-template-columns:repeat(7,var(--cell));gap:4px;font-size:11px;
+        color:var(--muted);text-align:center;margin-bottom:4px;justify-content:center;}
   .heatlegend{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);margin-top:8px;}
   .heatlegend i{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid var(--grid);}
 
@@ -136,36 +191,48 @@
   .warn{border-left:3px solid #ec835a;background:color-mix(in srgb,#ec835a 8%,var(--surface-1));
         padding:8px 12px;border-radius:6px;font-size:14px;}
   footer{color:var(--muted);font-size:12px;margin-top:24px;}
-  @media (max-width:560px){ .meals{grid-template-columns:1fr;} .meals dt{margin-top:4px;} }
+  /* Pantalla grande: pestañas arriba, formularios en línea */
+  @media (min-width:700px){
+    .wrap{padding-bottom:64px;}
+    nav.tabs{position:static;display:flex;gap:4px;background:none;border:none;
+      border-bottom:1px solid var(--grid);padding:0;margin-bottom:16px;}
+    nav.tabs button{flex-direction:row;gap:7px;font-size:15px;padding:10px 14px;
+      border-radius:0;border-bottom:2px solid transparent;}
+    nav.tabs button .ico{font-size:16px;}
+    nav.tabs button[aria-selected="true"]{background:none;color:var(--text-1);
+      border-bottom-color:var(--accent);}
+    .addrow{grid-template-columns:200px 110px auto;align-items:center;}
+    .addrow .btn{grid-column:auto;}
+    .dayrow2{grid-template-columns:220px auto 1fr;}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>Plan de verano — llegar fuerte a la pretemporada</h1>
-    <p>Seguimiento diario de comidas, actividad y medidas · 6 jul → 31 ago 2026</p>
-    <div class="toolbar">
-      <button class="btn small" id="btnExport">Exportar datos</button>
-      <button class="btn small" id="btnImport">Importar datos</button>
-      <input type="file" id="fileImport" accept="application/json" hidden>
-      <span id="syncStatus" style="font-size:13px;color:var(--muted);align-self:center"></span>
-    </div>
+    <h1>Plan de verano ⚽</h1>
+    <p class="sub">Llegar fuerte a la pretemporada · 6 jul → 31 ago · <span id="syncStatus"></span></p>
   </header>
 
   <nav class="tabs" role="tablist">
-    <button role="tab" aria-selected="true" data-tab="hoy">Hoy</button>
-    <button role="tab" aria-selected="false" data-tab="registro">Registro</button>
-    <button role="tab" aria-selected="false" data-tab="guia">Guía</button>
+    <button role="tab" aria-selected="true" data-tab="hoy"><span class="ico">📅</span><span>Hoy</span></button>
+    <button role="tab" aria-selected="false" data-tab="registro"><span class="ico">📈</span><span>Registro</span></button>
+    <button role="tab" aria-selected="false" data-tab="guia"><span class="ico">📖</span><span>Guía</span></button>
   </nav>
 
   <!-- ============ TAB HOY ============ -->
   <section id="tab-hoy">
     <div class="daynav">
-      <button class="btn small" id="prevDay" aria-label="Día anterior">◀</button>
-      <span class="title" id="dayTitle"></span>
-      <input type="date" id="dayPicker" min="2026-07-06" max="2026-08-31">
-      <button class="btn small" id="goToday">Hoy</button>
-      <button class="btn small" id="nextDay" aria-label="Día siguiente">▶</button>
+      <button class="btn icon" id="prevDay" aria-label="Día anterior">◀</button>
+      <div class="daycenter">
+        <div class="daytitle" id="dayTitle"></div>
+        <div class="daysub" id="daySub"></div>
+      </div>
+      <button class="btn icon" id="nextDay" aria-label="Día siguiente">▶</button>
+    </div>
+    <div class="dayrow2">
+      <input type="date" id="dayPicker" min="2026-07-06" max="2026-08-31" aria-label="Elegir fecha">
+      <button class="btn primary" id="goToday">Hoy</button>
     </div>
     <div id="dayBanner"></div>
 
@@ -210,8 +277,8 @@
       <h2>Peso (kg) — semanal, en ayunas</h2>
       <div class="addrow">
         <input type="date" id="wDate" min="2026-06-25" max="2026-09-15">
-        <input type="number" id="wVal" step="0.1" min="30" max="90" placeholder="kg" style="width:90px">
-        <button class="btn" id="wAdd">Añadir peso</button>
+        <input type="number" id="wVal" step="0.1" min="30" max="90" placeholder="kg">
+        <button class="btn primary" id="wAdd">Añadir peso</button>
       </div>
       <div class="chartwrap" id="chartPeso"></div>
     </div>
@@ -220,8 +287,8 @@
       <h2>Cintura (cm) — cada 2 semanas, a la altura del ombligo</h2>
       <div class="addrow">
         <input type="date" id="cDate" min="2026-06-25" max="2026-09-15">
-        <input type="number" id="cVal" step="0.5" min="40" max="120" placeholder="cm" style="width:90px">
-        <button class="btn" id="cAdd">Añadir cintura</button>
+        <input type="number" id="cVal" step="0.5" min="40" max="120" placeholder="cm">
+        <button class="btn primary" id="cAdd">Añadir cintura</button>
       </div>
       <div class="chartwrap" id="chartCintura"></div>
     </div>
@@ -331,6 +398,17 @@
       <details><summary>Ver los 14 menús (útil para la compra semanal)</summary>
         <div id="menuTable" style="margin-top:10px"></div>
       </details>
+    </div>
+
+    <div class="card">
+      <h2>💾 Copia de seguridad</h2>
+      <p class="hint">Los datos viven en la nube y se comparten entre todos los dispositivos.
+         Esto es solo un extra por si algún día hiciera falta.</p>
+      <div class="btnrow">
+        <button class="btn" id="btnExport">Exportar datos</button>
+        <button class="btn" id="btnImport">Importar datos</button>
+      </div>
+      <input type="file" id="fileImport" accept="application/json" hidden>
     </div>
 
     <div class="card">
@@ -524,8 +602,8 @@ function openTab(name){ tabs.forEach(b => { if (b.dataset.tab===name) b.click();
 function renderDay(){
   const idx = diffDays(START, currentDay);
   const ld = longDate(currentDay);
-  document.getElementById("dayTitle").textContent =
-      ld.charAt(0).toUpperCase() + ld.slice(1) + " · día " + (idx+1) + " de " + (diffDays(START,END)+1);
+  document.getElementById("dayTitle").textContent = ld.charAt(0).toUpperCase() + ld.slice(1);
+  document.getElementById("daySub").textContent = "Día " + (idx+1) + " de " + (diffDays(START,END)+1);
   document.getElementById("dayPicker").value = currentDay;
 
   // Aviso de medición
@@ -611,7 +689,9 @@ function lineChart(container, entries, opts){
     p.textContent = opts.emptyMsg; container.appendChild(p); return;
   }
   const data=[...entries].sort((a,b)=>a.date<b.date?-1:1);
-  const W=680,H=250,ML=46,MR=64,MT=14,MB=30;
+  // Lienzo más estrecho en móvil para que los rótulos no queden minúsculos al escalar
+  const cw=container.clientWidth||680;
+  const W=cw<520?430:680, H=250, ML=40, MR=cw<520?56:64, MT=14, MB=30;
   const iw=W-ML-MR, ih=H-MT-MB;
   const x0=Math.min(parse(START).getTime(), parse(data[0].date).getTime());
   const x1=Math.max(parse(END).getTime(), parse(data[data.length-1].date).getTime());
@@ -863,36 +943,34 @@ function renderHeat(){
   });
 })();
 
-/* ================= Tabla de raciones (Hoy y Guía) ================= */
+/* ================= Raciones (Hoy y Guía) ================= */
 (function(){
   ["racionesHoy","racionesGuia"].forEach(id=>{
     const box=document.getElementById(id);
-    const table=document.createElement("table");
-    table.innerHTML="<thead><tr><th>Alimento</th><th>Ración</th><th>Medida visual</th></tr></thead>";
-    const tb=document.createElement("tbody");
     RACIONES.forEach(r=>{
-      const tr=document.createElement("tr");
-      r.forEach(t=>{ const td=document.createElement("td"); td.textContent=t; tr.appendChild(td); });
-      tb.appendChild(tr);
+      const item=document.createElement("div"); item.className="rac";
+      const n=document.createElement("div"); n.className="rac-n"; n.textContent=r[0];
+      const q=document.createElement("div"); q.className="rac-q"; q.textContent=r[1];
+      const v=document.createElement("div"); v.className="rac-v"; v.textContent=r[2];
+      item.append(n,q,v); box.appendChild(item);
     });
-    table.appendChild(tb); box.appendChild(table);
   });
 })();
 
 /* ================= Menú de 14 días (Guía) ================= */
 (function(){
   const box=document.getElementById("menuTable");
-  const table=document.createElement("table");
-  table.innerHTML="<thead><tr><th>Día</th><th>Desayuno</th><th>Comida</th><th>Merienda</th><th>Cena</th></tr></thead>";
-  const tb=document.createElement("tbody");
   MENUS.forEach((m,i)=>{
-    const tr=document.createElement("tr");
-    [String(i+1),m.d,m.c,m.me,m.ce].forEach(t=>{
-      const td=document.createElement("td"); td.textContent=t; tr.appendChild(td);
+    const bloc=document.createElement("div"); bloc.className="menu14";
+    const t=document.createElement("div"); t.className="d"; t.textContent="Día "+(i+1);
+    bloc.appendChild(t);
+    [["Desayuno",m.d],["Comida",m.c],["Merienda",m.me],["Cena",m.ce]].forEach(([k,v])=>{
+      const p=document.createElement("p");
+      const b=document.createElement("b"); b.textContent=k+": ";
+      p.append(b,document.createTextNode(v)); bloc.appendChild(p);
     });
-    tb.appendChild(tr);
+    box.appendChild(bloc);
   });
-  table.appendChild(tb); box.appendChild(table);
 })();
 
 /* ================= Exportar / importar ================= */
